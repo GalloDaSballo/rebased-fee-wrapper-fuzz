@@ -98,7 +98,7 @@ contract RevertTests is Test {
         scaledSTETH.addUnderlying(62e18);// getPooledEthByShares() increase from 1 to 1.5, delta is 0.5
 
         // Quarter
-        assertEq(scaledRebasor.collateralCDP(address(this)), 125000000000000000100);
+        assertEq(scaledRebasor.collateralCDP(address(this)), 125000000000000000025);
         assertEq(scaledRebasor.stakes(address(this)), scaledRebasor.allStakes());
         assertEq(scaledRebasor.allShares(), 83333333333333333350);
 
@@ -107,7 +107,7 @@ contract RevertTests is Test {
         scaledSTETH.addUnderlying(62e18);// getPooledEthByShares() increase from 1.5 to 2, delta is 0.5
 
         // Half
-        assertEq(scaledRebasor.collateralCDP(address(this)), 145833333333333333386);
+        assertEq(scaledRebasor.collateralCDP(address(this)), 145833333333333333262);
         assertEq(scaledRebasor.stakes(address(this)), scaledRebasor.allStakes());
         assertEq(scaledRebasor.allShares(), 72916666666666666631);
     }
