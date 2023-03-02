@@ -36,6 +36,11 @@ contract RebasorInvariants is Test {
         assertEq(rebasor.sharesDeposited(address(handler)), rebasor.allShares());
     }
 
+    // cdp index should be synced to global value upon user operations
+    function invariant_indexSyncedByUserActions() public {
+        assertEq(rebasor.stFFPScdp(address(handler)), rebasor.stFFPSg());
+    }
+
     function invariant_callSummary() public view {
         handler.callSummary();
     }

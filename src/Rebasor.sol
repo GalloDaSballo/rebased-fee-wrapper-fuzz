@@ -16,6 +16,9 @@ contract FakeRebasableETH {
         return ethAmount * totalShares / totalBalance;
     }
     function getPooledEthByShares(uint256 sharesAmount) public view returns (uint256) {
+        if(totalShares == 0){
+            return 0;
+        }
         return sharesAmount * totalBalance / totalShares;
     }
 
@@ -42,7 +45,7 @@ contract FakeRebasableETH {
 
 // https://gist.github.com/rayeaster/99402460c7f990a70594e5b1a697ed88
 contract Rebasor {
-    FakeRebasableETH public immutable STETH;
+    FakeRebasableETH public STETH;
 
     uint256 public stFFPSg; // Global Index
     uint256 public stFeePerUnitg = 1e18; // Global Fee accumulator per stake unit
@@ -76,7 +79,7 @@ contract Rebasor {
 
     constructor() public {
         STETH = new FakeRebasableETH();
-        lastIndexTimestamp = block.timestamp;
+        _syncIndex();
     }
 
     function deposit(uint256 amt) external {
@@ -162,6 +165,11 @@ contract Rebasor {
 
     }
 	
+    function _syncIndex() internal {
+        stFFPSg = STETH.getPooledEthByShares(1e18);
+        lastIndexTimestamp = block.timestamp;
+    }
+	
     // note the first returned _deltaFeeSplitShare is scaled by 1e18 
     function calcFeeUponStakingReward(uint256 _newIndex, uint256 _prevIndex) public view returns (uint256, uint256, uint256) {
         uint256 deltaIndex = _newIndex - _prevIndex;
@@ -176,7 +184,7 @@ contract Rebasor {
 	
     function _updateCdpAfterFee(address cdp) internal {
         uint _oldStake = stakes[cdp];	
-        uint _feeSplitDistributed = _oldStake * (stFeePerUnitg - stFeePerUnitcdp[cdp]);
+        uint _feeSplitDistributed = _oldStake * (stFeePerUnitg - stFeePerUnitcdp[cdp]) + _oldStake * stFeePerUnitgError / allStakes;
         require((sharesDeposited[cdp] * 1e18) > _feeSplitDistributed, "!tooBigFeeForCDP");
         sharesDeposited[cdp] = ((sharesDeposited[cdp] * 1e18) - _feeSplitDistributed) / 1e18;
         stFeePerUnitcdp[cdp] = stFeePerUnitg;
